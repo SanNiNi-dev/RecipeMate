@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 import { getUserIdFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 /* GET /api/profile — fetch full profile + stats */
 export async function GET() {
   try {

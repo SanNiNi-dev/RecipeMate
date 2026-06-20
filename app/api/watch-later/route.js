@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server'
 import { getUserIdFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/watch-later — fetch all saved recipes for the logged-in user
 export async function GET() {
   try {

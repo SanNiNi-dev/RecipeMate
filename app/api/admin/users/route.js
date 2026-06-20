@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 /* GET /api/admin/users?page=1&search= */
 export async function GET(request) {
   const admin = await getAdminFromRequest()

@@ -7,6 +7,8 @@ import { OAuth2Client } from 'google-auth-library'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 export async function GET(request) {

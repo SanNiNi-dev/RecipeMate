@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 /* PATCH /api/admin/users/[id]  — toggle isAdmin */
 export async function PATCH(request, { params }) {
   const admin = await getAdminFromRequest()

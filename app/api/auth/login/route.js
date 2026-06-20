@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request) {
   try {
     const { email, password } = await request.json()
