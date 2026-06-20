@@ -1,0 +1,58 @@
+// RecipeMate Prisma Schema
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  searchHistory  SearchHistory[]
+  watchLater     WatchLaterRecipe[]
+  savedVideos    SavedVideo[]
+}
+
+model SearchHistory {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  searchText String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WatchLaterRecipe {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  recipeId  String
+  title     String
+  image     String   @db.Text
+  sourceUrl String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedVideo {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  videoId   String
+  title     String
+  shortUrl  String
+  thumbnail String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
