@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { ToastContainer, useToast } from '@/components/Toast'
+import { useLanguage } from '@/components/LanguageProvider'
 
 export default function HistoryPage() {
   const router = useRouter()
   const { toasts, addToast, removeToast } = useToast()
+  const { t } = useLanguage()
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [unauthorized, setUnauthorized] = useState(false)
@@ -18,7 +20,7 @@ export default function HistoryPage() {
       const data = await res.json()
       setHistory(data.history || [])
     } catch {
-      addToast('Failed to load history.', 'error')
+      addToast(t('history.load_failed'), 'error')
     } finally {
       setLoading(false)
     }
@@ -47,19 +49,19 @@ export default function HistoryPage() {
       <div className="page-container max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-2">Search History</h1>
-          <p className="text-slate-400">Your ingredient searches, ready to revisit</p>
+          <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-2">{t('history.title')}</h1>
+          <p className="text-slate-400">{t('history.subtitle')}</p>
         </div>
 
         {/* Unauthorized */}
         {unauthorized && (
           <div className="glass-card p-10 text-center">
             <div className="text-6xl mb-4">🔒</div>
-            <h2 className="text-xl font-semibold text-slate-200 mb-2">Sign in Required</h2>
-            <p className="text-slate-400 mb-6">Please sign in to view your search history.</p>
+            <h2 className="text-xl font-semibold text-slate-200 mb-2">{t('history.sign_in_required')}</h2>
+            <p className="text-slate-400 mb-6">{t('history.sign_in_message')}</p>
             <div className="flex gap-3 justify-center">
-              <button onClick={() => router.push('/login')} className="btn-primary px-6 py-2.5">Sign In</button>
-              <button onClick={() => router.push('/register')} className="btn-outline px-6 py-2.5">Register</button>
+              <button onClick={() => router.push('/login')} className="btn-primary px-6 py-2.5">{t('common.sign_in')}</button>
+              <button onClick={() => router.push('/register')} className="btn-outline px-6 py-2.5">{t('common.register')}</button>
             </div>
           </div>
         )}
@@ -77,10 +79,10 @@ export default function HistoryPage() {
         {!loading && !unauthorized && history.length === 0 && (
           <div className="glass-card p-12 text-center">
             <div className="text-6xl mb-4">🔍</div>
-            <h2 className="text-xl font-semibold text-slate-200 mb-2">No searches yet</h2>
-            <p className="text-slate-400 mb-6">Start searching for recipes by ingredients to build your history.</p>
+            <h2 className="text-xl font-semibold text-slate-200 mb-2">{t('history.no_searches')}</h2>
+            <p className="text-slate-400 mb-6">{t('history.no_searches_message')}</p>
             <button onClick={() => router.push('/')} className="btn-primary px-6 py-2.5">
-              Find Recipes
+              {t('common.find_recipes')}
             </button>
           </div>
         )}
@@ -88,7 +90,7 @@ export default function HistoryPage() {
         {/* History List */}
         {!loading && !unauthorized && history.length > 0 && (
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-slate-500 mb-1">{history.length} search{history.length !== 1 ? 'es' : ''} recorded</p>
+            <p className="text-sm text-slate-500 mb-1">{t('history.searches_count', { count: history.length })}</p>
             {history.map((item, index) => (
               <div
                 key={item.id}
@@ -117,7 +119,7 @@ export default function HistoryPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  Search Again
+                  {t('common.search_again')}
                 </button>
               </div>
             ))}

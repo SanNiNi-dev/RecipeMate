@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { ToastContainer, useToast } from '@/components/Toast'
+import { useLanguage } from '@/components/LanguageProvider'
 
 const FEATURED_SEARCHES = ['Pasta Carbonara', 'Chocolate Cake', 'Grilled Steak', 'Sushi Rolls', 'Tacos', 'Ramen']
 
 function VideoCard({ video, addToast }) {
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
+  const { t } = useLanguage()
 
   const formatDuration = (seconds) => {
     if (!seconds) return ''
@@ -35,17 +37,17 @@ function VideoCard({ video, addToast }) {
       const data = await res.json()
 
       if (res.status === 401) {
-        addToast('Sign in to save videos to Watch Later.', 'warning')
+        addToast(t('videos.sign_in_to_save'), 'warning')
       } else if (!res.ok) {
-        addToast(data.error || 'Unable to save video.', 'error')
+        addToast(data.error || t('videos.save_failed'), 'error')
       } else if (res.status === 200) {
-        addToast(data.message || 'Already in your Watch Later list.', 'info')
+        addToast(data.message || t('videos.already_saved'), 'info')
       } else {
-        addToast('Saved to Watch Later.', 'success')
+        addToast(t('videos.saved'), 'success')
       }
     } catch (error) {
       console.error('[SAVE_VIDEO_ERROR]', error)
-      addToast('Failed to save the video. Try again.', 'error')
+      addToast(t('videos.save_failed'), 'error')
     } finally {
       setSaving(false)
     }
@@ -79,7 +81,7 @@ function VideoCard({ video, addToast }) {
           {/* YouTube badge */}
           <div className="absolute top-2 left-2">
             <span className="badge" style={{ background: 'rgba(255,0,0,0.2)', color: '#ff4444', border: '1px solid rgba(255,68,68,0.3)' }}>
-              ▶ YouTube
+              {t('videos.youtube')}
             </span>
           </div>
         </div>
@@ -90,21 +92,21 @@ function VideoCard({ video, addToast }) {
             {video.title}
           </h3>
           {video.views && (
-            <p className="text-xs text-slate-500">{Number(video.views).toLocaleString()} views</p>
+            <p className="text-xs text-slate-500">{t('videos.views', { count: Number(video.views).toLocaleString() })}</p>
           )}
           <div className="flex flex-col gap-2 mt-auto">
             <button
               onClick={(e) => { e.stopPropagation(); setShowModal(true) }}
               className="btn-primary text-xs py-2 rounded-lg w-full"
             >
-              ▶ Watch Now
+              {t('videos.watch_now')}
             </button>
             <button
               onClick={handleSaveWatchLater}
               disabled={saving}
               className="btn-outline text-xs py-2 rounded-lg w-full disabled:opacity-50"
             >
-              {saving ? 'Saving...' : '⭐ Watch Later'}
+              {saving ? t('videos.saving') : t('videos.watch_later')}
             </button>
           </div>
         </div>
@@ -147,6 +149,7 @@ function VideoCard({ video, addToast }) {
 
 export default function VideosPage() {
   const { toasts, addToast, removeToast } = useToast()
+  const { t } = useLanguage()
   const [query, setQuery] = useState('')
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(false)
@@ -175,7 +178,7 @@ export default function VideosPage() {
         addToast(`No videos found for "${searchQuery}"`, 'info')
       }
     } catch {
-      setError('Network error. Please check your connection.')
+      setError(t('common.network_error'))
       setVideos([])
     } finally {
       setLoading(false)
@@ -198,15 +201,15 @@ export default function VideosPage() {
 
         <div className="relative z-10 max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium mb-6">
-            🎬 Cooking Video Hub
+            {t('videos.badge')}
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text">Learn to Cook</span>
+            <span className="gradient-text">{t('videos.title_1')}</span>
             <br />
-            <span className="text-slate-300">from the Best</span>
+            <span className="text-slate-300">{t('videos.title_2')}</span>
           </h1>
           <p className="text-slate-400 text-lg mb-8">
-            Search thousands of cooking tutorials across every cuisine and skill level
+            {t('videos.subtitle')}
           </p>
 
           {/* Search */}
@@ -216,7 +219,7 @@ export default function VideosPage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search e.g. pasta, baking, steak…"
+              placeholder={t('videos.search_placeholder')}
               className="input-field flex-1"
             />
             <button
@@ -229,7 +232,7 @@ export default function VideosPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-              ) : '🔍 Search'}
+              ) : `🔍 ${t('common.search')}`}
             </button>
           </form>
 
@@ -250,7 +253,7 @@ export default function VideosPage() {
               href="/videos/watch-later"
               className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/5 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/10 transition"
             >
-              ⭐ View Saved Videos
+              {t('videos.view_saved')}
             </a>
           </div>
         </div>
@@ -284,8 +287,8 @@ export default function VideosPage() {
         {!loading && searched && videos.length === 0 && !error && (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📺</div>
-            <h2 className="text-xl font-semibold text-slate-300 mb-2">No videos found</h2>
-            <p className="text-slate-500">Try a different search term</p>
+            <h2 className="text-xl font-semibold text-slate-300 mb-2">{t('videos.no_videos')}</h2>
+            <p className="text-slate-500">{t('videos.no_videos_message')}</p>
           </div>
         )}
 
@@ -293,9 +296,9 @@ export default function VideosPage() {
         {!loading && !searched && (
           <div className="grid md:grid-cols-3 gap-6 py-4">
             {[
-              { emoji: '👨‍🍳', title: 'Chef Tutorials', desc: 'Learn from Michelin-star techniques' },
-              { emoji: '🌍', title: 'World Cuisines', desc: 'Italian, Japanese, Mexican & more' },
-              { emoji: '⚡', title: 'Quick Meals', desc: '15-minute recipes for busy days' },
+              { emoji: '👨‍🍳', title: t('videos.cta_chef_title'), desc: t('videos.cta_chef_desc') },
+              { emoji: '🌍', title: t('videos.cta_world_title'), desc: t('videos.cta_world_desc') },
+              { emoji: '⚡', title: t('videos.cta_quick_title'), desc: t('videos.cta_quick_desc') },
             ].map((f) => (
               <div key={f.title} className="glass-card p-6 text-center">
                 <div className="text-4xl mb-3">{f.emoji}</div>
@@ -309,7 +312,7 @@ export default function VideosPage() {
         {/* Video Results */}
         {!loading && videos.length > 0 && (
           <>
-            <p className="text-sm text-slate-500 mb-4">{videos.length} videos found</p>
+            <p className="text-sm text-slate-500 mb-4">{t('videos.videos_found', { count: videos.length })}</p>
             <div className="video-grid">
               {videos.map((video) => (
                 <VideoCard key={video.youTubeId} video={video} addToast={addToast} />

@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ChatBot from '@/components/ChatBot'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { LanguageProvider } from '@/components/LanguageProvider'
 
 export const metadata = {
   title: {
@@ -26,15 +27,23 @@ export default function RootLayout({ children }) {
             __html: `(function(){try{var m=localStorage.getItem('rm-theme-mode')||'system';var r=m==='system'?(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):m;document.documentElement.setAttribute('data-theme',r);}catch(e){}})();`,
           }}
         />
+        {/* Prevent flash of wrong language — set lang attribute before hydrate */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var l=localStorage.getItem('rm-language');if(l&&['en','my','zh','th','ja'].indexOf(l)!==-1){document.documentElement.lang=l;}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body className="antialiased flex flex-col min-h-screen">
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <ChatBot />
+          <LanguageProvider>
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <ChatBot />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

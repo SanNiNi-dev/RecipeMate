@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ToastContainer, useToast } from '@/components/Toast'
+import { useLanguage } from '@/components/LanguageProvider'
 
 /* Google "G" logo SVG */
 const GoogleIcon = () => (
@@ -19,6 +20,7 @@ function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toasts, addToast, removeToast } = useToast()
+  const { t } = useLanguage()
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -26,15 +28,15 @@ function LoginContent() {
 
   useEffect(() => {
     const error = searchParams.get('error')
-    if (error === 'google_denied') addToast('Google sign-in was cancelled.', 'error')
-    else if (error === 'google_failed') addToast('Google sign-in failed. Please try again.', 'error')
-    else if (error === 'no_email') addToast('Could not retrieve your Google email.', 'error')
-  }, [searchParams, addToast])
+    if (error === 'google_denied') addToast(t('login.google_denied'), 'error')
+    else if (error === 'google_failed') addToast(t('login.google_failed'), 'error')
+    else if (error === 'no_email') addToast(t('login.no_email'), 'error')
+  }, [searchParams, addToast, t])
 
   const validate = () => {
     const e = {}
-    if (!form.email.trim()) e.email = 'Email is required.'
-    if (!form.password) e.password = 'Password is required.'
+    if (!form.email.trim()) e.email = t('login.email_required')
+    if (!form.password) e.password = t('login.password_required')
     return e
   }
 
@@ -59,16 +61,16 @@ function LoginContent() {
       const data = await res.json()
 
       if (res.ok) {
-        addToast(`Welcome back, ${data.user?.name || 'Chef'}! 🍳`, 'success')
+        addToast(t('login.welcome_back', { name: data.user?.name || 'Chef' }), 'success')
         setTimeout(() => {
           router.push('/')
           router.refresh()
         }, 1200)
       } else {
-        addToast(data.error || 'Invalid credentials.', 'error')
+        addToast(data.error || t('login.invalid_credentials'), 'error')
       }
     } catch {
-      addToast('Network error. Please try again.', 'error')
+      addToast(t('common.network_error'), 'error')
     } finally {
       setLoading(false)
     }
@@ -98,9 +100,9 @@ function LoginContent() {
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/20">
               <span className="text-3xl">🔑</span>
             </div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>
+            <h1 className="text-3xl font-bold gradient-text mb-2">{t('login.title')}</h1>
             <p style={{ color: 'var(--text-secondary)' }} className="text-sm">
-              Sign in to your RecipeMate account
+              {t('login.subtitle')}
             </p>
           </div>
 
@@ -108,14 +110,14 @@ function LoginContent() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
               <div>
                 <label htmlFor="login-email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  Email Address
+                  {t('login.email_label')}
                 </label>
                 <input
                   id="login-email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder={t('login.email_placeholder')}
                   value={form.email}
                   onChange={handleChange}
                   className="input-field"
@@ -125,14 +127,14 @@ function LoginContent() {
 
               <div>
                 <label htmlFor="login-password" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  Password
+                  {t('login.password_label')}
                 </label>
                 <input
                   id="login-password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="Your password"
+                  placeholder={t('login.password_placeholder')}
                   value={form.password}
                   onChange={handleChange}
                   className="input-field"
@@ -141,14 +143,14 @@ function LoginContent() {
               </div>
 
               <button type="submit" disabled={loading} className="btn-primary w-full py-3 mt-1 text-base">
-                {loading ? 'Signing In…' : 'Sign In'}
+                {loading ? t('login.signing_in') : t('common.sign_in')}
               </button>
             </form>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '1.5rem 0' }}>
               <div style={{ flex: 1, height: '1px', background: 'rgba(52,211,153,0.15)' }} />
               <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
-                or continue with
+                {t('login.or_continue')}
               </span>
               <div style={{ flex: 1, height: '1px', background: 'rgba(52,211,153,0.15)' }} />
             </div>
@@ -176,13 +178,13 @@ function LoginContent() {
                 marginBottom: '1.5rem',
               }}
             >
-              {googleLoading ? 'Redirecting…' : <><GoogleIcon /> Continue with Google</>}
+              {googleLoading ? t('login.redirecting') : <><GoogleIcon /> {t('login.google_continue')}</>}
             </button>
 
             <p className="text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-              New to RecipeMate?{' '}
+              {t('login.no_account')}{' '}
               <Link href="/register" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
-                Create an account
+                {t('login.create_account')}
               </Link>
             </p>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useLanguage } from '@/components/LanguageProvider'
 
 /* ── Data ──────────────────────────────────────────────────── */
 const POPULAR_INGREDIENTS = [
@@ -11,131 +12,14 @@ const POPULAR_INGREDIENTS = [
 ]
 
 const CUISINES = [
-  { label: 'Italian', emoji: '🇮🇹', q: 'pasta, tomatoes, basil' },
-  { label: 'Chinese', emoji: '🇨🇳', q: 'soy sauce, ginger, rice' },
-  { label: 'Mexican', emoji: '🇲🇽', q: 'beans, corn, avocado' },
-  { label: 'Indian', emoji: '🇮🇳', q: 'chicken, curry, coconut milk' },
-  { label: 'American', emoji: '🇺🇸', q: 'beef, cheese, potatoes' },
-  { label: 'Greek', emoji: '🇬🇷', q: 'olive oil, lemon, feta' },
-  { label: 'Japanese', emoji: '🇯🇵', q: 'rice, salmon, soy sauce' },
-  { label: 'Thai', emoji: '🇹🇭', q: 'coconut milk, lime, chili' },
-]
-
-const HOW_IT_WORKS = [
-  {
-    step: '01',
-    icon: '🛒',
-    title: 'List Your Ingredients',
-    desc: 'Type what you have in your fridge or pantry — even partial lists work great.',
-    color: 'from-emerald-500 to-teal-400',
-    glow: 'rgba(16,185,129,0.25)',
-  },
-  {
-    step: '02',
-    icon: '🤖',
-    title: 'AI Finds Matches',
-    desc: 'Our AI scans thousands of recipes and ranks them by how many ingredients you already have.',
-    color: 'from-violet-500 to-purple-400',
-    glow: 'rgba(139,92,246,0.25)',
-  },
-  {
-    step: '03',
-    icon: '🍳',
-    title: 'Cook & Enjoy',
-    desc: 'Follow step-by-step instructions, watch video tutorials, and save your favourites.',
-    color: 'from-amber-500 to-orange-400',
-    glow: 'rgba(245,158,11,0.25)',
-  },
-]
-
-const FEATURES = [
-  {
-    emoji: '🔍',
-    title: 'Smart Ingredient Search',
-    desc: 'Enter what you have and discover recipes sorted by how many ingredients you already own.',
-    color: 'from-emerald-500 to-teal-500',
-    tag: 'Core Feature',
-  },
-  {
-    emoji: '⭐',
-    title: 'Save for Later',
-    desc: "Bookmark recipes you love to your Watch Later list so they're always ready when you are.",
-    color: 'from-amber-500 to-orange-500',
-    tag: 'Personalised',
-  },
-  {
-    emoji: '🎬',
-    title: 'Video Tutorials',
-    desc: 'Watch step-by-step cooking videos sourced from top YouTube chefs worldwide.',
-    color: 'from-purple-500 to-pink-500',
-    tag: 'Learning',
-  },
-  {
-    emoji: '🤖',
-    title: 'AI Chat Assistant',
-    desc: 'Ask our built-in AI chef anything — substitutions, techniques, dietary tips, and more.',
-    color: 'from-cyan-500 to-blue-500',
-    tag: 'AI-Powered',
-  },
-  {
-    emoji: '📊',
-    title: 'Nutrition Info',
-    desc: 'Get detailed calorie, macro, and micronutrient breakdowns for every recipe.',
-    color: 'from-rose-500 to-pink-500',
-    tag: 'Health',
-  },
-  {
-    emoji: '🕒',
-    title: 'Search History',
-    desc: 'Pick up where you left off. All your recent searches are saved and instantly accessible.',
-    color: 'from-slate-500 to-slate-400',
-    tag: 'Convenience',
-  },
-  {
-    emoji: '🌿',
-    title: 'Dietary Filters',
-    desc: 'Filter by vegan, vegetarian, gluten-free, keto and more — find recipes that match your lifestyle.',
-    color: 'from-lime-500 to-green-400',
-    tag: 'Health',
-  },
-  {
-    emoji: '⏱️',
-    title: 'Quick Meals',
-    desc: 'Short on time? Filter by cook time and find delicious meals ready in under 30 minutes.',
-    color: 'from-orange-500 to-red-400',
-    tag: 'Time-Saving',
-  },
-]
-
-const TESTIMONIALS = [
-  {
-    name: 'Sarah M.',
-    role: 'Home Cook',
-    avatar: '👩‍🍳',
-    text: "RecipeMate saved dinner last night! I had random veggies and it found me 3 amazing recipes. The video tutorials sealed the deal.",
-    stars: 5,
-  },
-  {
-    name: 'James K.',
-    role: 'Busy Parent',
-    avatar: '👨‍👩‍👧',
-    text: "With two kids and a packed schedule, this app is a lifesaver. I type what's in the fridge and dinner is sorted in minutes.",
-    stars: 5,
-  },
-  {
-    name: 'Priya L.',
-    role: 'Food Enthusiast',
-    avatar: '🧑‍🍳',
-    text: "The AI chat is incredible. I asked about substitutions for an obscure spice and got a detailed, helpful answer instantly.",
-    stars: 5,
-  },
-]
-
-const STATS = [
-  { value: '5,000+', label: 'Recipes', icon: '📖' },
-  { value: '50+', label: 'Cuisines', icon: '🌍' },
-  { value: '100%', label: 'Free to Use', icon: '🎉' },
-  { value: '24/7', label: 'AI Support', icon: '🤖' },
+  { labelKey: 'home.cuisine_italian', emoji: '🇮🇹', q: 'pasta, tomatoes, basil' },
+  { labelKey: 'home.cuisine_chinese', emoji: '🇨🇳', q: 'soy sauce, ginger, rice' },
+  { labelKey: 'home.cuisine_mexican', emoji: '🇲🇽', q: 'beans, corn, avocado' },
+  { labelKey: 'home.cuisine_indian', emoji: '🇮🇳', q: 'chicken, curry, coconut milk' },
+  { labelKey: 'home.cuisine_american', emoji: '🇺🇸', q: 'beef, cheese, potatoes' },
+  { labelKey: 'home.cuisine_greek', emoji: '🇬🇷', q: 'olive oil, lemon, feta' },
+  { labelKey: 'home.cuisine_japanese', emoji: '🇯🇵', q: 'rice, salmon, soy sauce' },
+  { labelKey: 'home.cuisine_thai', emoji: '🇹🇭', q: 'coconut milk, lime, chili' },
 ]
 
 /* ── Animated typing hook ──────────────────────────────────── */
@@ -187,7 +71,65 @@ function Stars({ count }) {
 export default function HomePage() {
   const router = useRouter()
   const [query, setQuery] = useState('')
-  const typed = useTypewriter(['Amazing Today', 'for the Family', 'with What You Have', 'in 30 Minutes'])
+  const { t } = useLanguage()
+
+  const typed = useTypewriter([
+    t('home.typewriter_1'),
+    t('home.typewriter_2'),
+    t('home.typewriter_3'),
+    t('home.typewriter_4'),
+  ])
+
+  const HOW_IT_WORKS = [
+    {
+      step: '01',
+      icon: '🛒',
+      title: t('home.how_step1_title'),
+      desc: t('home.how_step1_desc'),
+      color: 'from-emerald-500 to-teal-400',
+      glow: 'rgba(16,185,129,0.25)',
+    },
+    {
+      step: '02',
+      icon: '🤖',
+      title: t('home.how_step2_title'),
+      desc: t('home.how_step2_desc'),
+      color: 'from-violet-500 to-purple-400',
+      glow: 'rgba(139,92,246,0.25)',
+    },
+    {
+      step: '03',
+      icon: '🍳',
+      title: t('home.how_step3_title'),
+      desc: t('home.how_step3_desc'),
+      color: 'from-amber-500 to-orange-400',
+      glow: 'rgba(245,158,11,0.25)',
+    },
+  ]
+
+  const FEATURES = [
+    { emoji: '🔍', title: t('home.feature_search_title'), desc: t('home.feature_search_desc'), color: 'from-emerald-500 to-teal-500', tag: t('home.feature_search_tag') },
+    { emoji: '⭐', title: t('home.feature_save_title'), desc: t('home.feature_save_desc'), color: 'from-amber-500 to-orange-500', tag: t('home.feature_save_tag') },
+    { emoji: '🎬', title: t('home.feature_video_title'), desc: t('home.feature_video_desc'), color: 'from-purple-500 to-pink-500', tag: t('home.feature_video_tag') },
+    { emoji: '🤖', title: t('home.feature_ai_title'), desc: t('home.feature_ai_desc'), color: 'from-cyan-500 to-blue-500', tag: t('home.feature_ai_tag') },
+    { emoji: '📊', title: t('home.feature_nutrition_title'), desc: t('home.feature_nutrition_desc'), color: 'from-rose-500 to-pink-500', tag: t('home.feature_nutrition_tag') },
+    { emoji: '🕒', title: t('home.feature_history_title'), desc: t('home.feature_history_desc'), color: 'from-slate-500 to-slate-400', tag: t('home.feature_history_tag') },
+    { emoji: '🌿', title: t('home.feature_dietary_title'), desc: t('home.feature_dietary_desc'), color: 'from-lime-500 to-green-400', tag: t('home.feature_dietary_tag') },
+    { emoji: '⏱️', title: t('home.feature_quick_title'), desc: t('home.feature_quick_desc'), color: 'from-orange-500 to-red-400', tag: t('home.feature_quick_tag') },
+  ]
+
+  const TESTIMONIALS = [
+    { name: t('home.testimonial1_name'), role: t('home.testimonial1_role'), avatar: '👩‍🍳', text: t('home.testimonial1_text'), stars: 5 },
+    { name: t('home.testimonial2_name'), role: t('home.testimonial2_role'), avatar: '👨‍👩‍👧', text: t('home.testimonial2_text'), stars: 5 },
+    { name: t('home.testimonial3_name'), role: t('home.testimonial3_role'), avatar: '🧑‍🍳', text: t('home.testimonial3_text'), stars: 5 },
+  ]
+
+  const STATS = [
+    { value: '5,000+', label: t('home.stat_recipes'), icon: '📖' },
+    { value: '50+', label: t('home.stat_cuisines'), icon: '🌍' },
+    { value: '100%', label: t('home.stat_free'), icon: '🎉' },
+    { value: '24/7', label: t('home.stat_ai'), icon: '🤖' },
+  ]
 
   const handleSearch = async (e) => {
 
@@ -224,7 +166,7 @@ export default function HomePage() {
 
         {/* Headline with typewriter */}
         <h1 style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)', fontWeight: 900, lineHeight: 1.08, marginBottom: '20px', letterSpacing: '-0.02em' }}>
-          <span style={{ color: 'var(--text-primary)' }}>Cook Something</span>
+          <span style={{ color: 'var(--text-primary)' }}>{t('home.hero_title_1')}</span>
           <br />
           <span className="gradient-text" style={{ minHeight: '1.2em', display: 'inline-block' }}>
             {typed}<span style={{ borderRight: '3px solid #10b981', marginLeft: '2px', animation: 'pulse 1s infinite' }}>&nbsp;</span>
@@ -232,8 +174,7 @@ export default function HomePage() {
         </h1>
 
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', marginBottom: '40px', lineHeight: 1.7 }}>
-          Tell us what&apos;s in your fridge and we&apos;ll find the perfect recipes.
-          No more food waste — just delicious meals.
+          {t('home.hero_subtitle')}
         </p>
 
         {/* Search Form */}
@@ -245,7 +186,7 @@ export default function HomePage() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. chicken, garlic, tomatoes, pasta…"
+                placeholder={t('home.search_placeholder')}
                 className="input-field"
                 style={{ flex: 1, minWidth: '200px', fontSize: '1rem', padding: '1rem 1.25rem' }}
               />
@@ -258,13 +199,13 @@ export default function HomePage() {
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Find Recipes
+                {t('common.find_recipes')}
               </button>
             </div>
 
             {/* Quick ingredient chips */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginTop: '4px' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', alignSelf: 'center', fontWeight: 500 }}>Quick add:</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', alignSelf: 'center', fontWeight: 500 }}>{t('home.quick_add')}</span>
               {POPULAR_INGREDIENTS.map((ing) => (
                 <button
                   key={ing}
@@ -287,8 +228,8 @@ export default function HomePage() {
 
         {/* Trust indicators */}
         <div style={{ display: 'flex', gap: '24px', marginTop: '32px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['✓ No account required', '✓ 5,000+ recipes', '✓ Free forever'].map(t => (
-            <span key={t} style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>{t}</span>
+          {[t('home.trust_1'), t('home.trust_2'), t('home.trust_3')].map(txt => (
+            <span key={txt} style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>{txt}</span>
           ))}
         </div>
       </section>
@@ -314,18 +255,18 @@ export default function HomePage() {
             display: 'inline-block', padding: '4px 14px', borderRadius: '9999px',
             background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)',
             fontSize: '0.75rem', fontWeight: 600, color: '#34d399', marginBottom: '12px', letterSpacing: '0.05em', textTransform: 'uppercase',
-          }}>Explore by Cuisine</div>
+          }}>{t('home.cuisine_section_tag')}</div>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
-            What are you craving?
+            {t('home.cuisine_section_title')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '32px' }}>
-            Pick a cuisine and we&apos;ll instantly search for matching recipes.
+            {t('home.cuisine_section_subtitle')}
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '12px' }}>
             {CUISINES.map((c) => (
               <button
-                key={c.label}
+                key={c.labelKey}
                 onClick={() => router.push(`/results?q=${encodeURIComponent(c.q)}`)}
                 className="glass-card"
                 style={{
@@ -338,7 +279,7 @@ export default function HomePage() {
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-soft)'; e.currentTarget.style.transform = 'translateY(0)' }}
               >
                 <span style={{ fontSize: '2.75rem', lineHeight: 1 }}>{c.emoji}</span>
-                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>{c.label}</span>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>{t(c.labelKey)}</span>
               </button>
             ))}
           </div>
@@ -353,12 +294,12 @@ export default function HomePage() {
             display: 'inline-block', padding: '4px 14px', borderRadius: '9999px',
             background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)',
             fontSize: '0.75rem', fontWeight: 600, color: '#a78bfa', marginBottom: '12px', letterSpacing: '0.05em', textTransform: 'uppercase',
-          }}>How It Works</div>
+          }}>{t('home.how_section_tag')}</div>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
-            From fridge to table in 3 steps
+            {t('home.how_section_title')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            No culinary degree required.
+            {t('home.how_section_subtitle')}
           </p>
         </div>
 
@@ -370,7 +311,7 @@ export default function HomePage() {
             display: 'none',
           }} className="md:block" />
 
-          {HOW_IT_WORKS.map((step, i) => (
+          {HOW_IT_WORKS.map((step) => (
             <div key={step.step} className="glass-card" style={{ padding: '32px 24px', textAlign: 'center', position: 'relative' }}>
               {/* Step number ring */}
               <div style={{
@@ -401,12 +342,12 @@ export default function HomePage() {
             display: 'inline-block', padding: '4px 14px', borderRadius: '9999px',
             background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
             fontSize: '0.75rem', fontWeight: 600, color: '#fbbf24', marginBottom: '12px', letterSpacing: '0.05em', textTransform: 'uppercase',
-          }}>Everything You Need</div>
+          }}>{t('home.features_section_tag')}</div>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
-            Packed with powerful features
+            {t('home.features_section_title')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Built for real cooks, not just food bloggers.
+            {t('home.features_section_subtitle')}
           </p>
         </div>
 
@@ -416,8 +357,6 @@ export default function HomePage() {
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
                 <div style={{
                   width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0,
-                  background: `linear-gradient(135deg, ${f.color.replace('from-', '').replace(' to-', ',').split(',')[0] ? 'var(--emerald-500)' : '#10b981'}, #059669)`,
-                  backgroundImage: `linear-gradient(135deg, var(--tw-gradient-stops, #10b981, #059669))`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '1.5rem',
                   background: `linear-gradient(135deg, ${f.color.includes('emerald') ? '#10b981, #14b8a6' :
@@ -425,7 +364,9 @@ export default function HomePage() {
                         f.color.includes('purple') ? '#8b5cf6, #ec4899' :
                           f.color.includes('cyan') ? '#06b6d4, #3b82f6' :
                             f.color.includes('rose') ? '#f43f5e, #ec4899' :
-                              '#64748b, #94a3b8'
+                              f.color.includes('lime') ? '#84cc16, #4ade80' :
+                                f.color.includes('orange') ? '#f97316, #ef4444' :
+                                  '#64748b, #94a3b8'
                     })`,
                 }}>
                   {f.emoji}
@@ -456,22 +397,22 @@ export default function HomePage() {
             display: 'inline-block', padding: '4px 14px', borderRadius: '9999px',
             background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)',
             fontSize: '0.75rem', fontWeight: 600, color: '#fb7185', marginBottom: '12px', letterSpacing: '0.05em', textTransform: 'uppercase',
-          }}>Loved by Cooks</div>
+          }}>{t('home.testimonials_section_tag')}</div>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
-            What our users say
+            {t('home.testimonials_section_title')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Join thousands of home cooks who&apos;ve transformed their kitchens.
+            {t('home.testimonials_section_subtitle')}
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="glass-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {TESTIMONIALS.map((t_item) => (
+            <div key={t_item.name} className="glass-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Quote mark */}
               <div style={{ fontSize: '2.5rem', lineHeight: 1, color: 'rgba(52,211,153,0.3)', fontFamily: 'Georgia, serif' }}>"</div>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginTop: '-16px', flex: 1 }}>
-                {t.text}
+                {t_item.text}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderTop: '1px solid var(--border-soft)', paddingTop: '16px' }}>
                 <div style={{
@@ -480,13 +421,13 @@ export default function HomePage() {
                   border: '2px solid rgba(52,211,153,0.25)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 }}>
-                  {t.avatar}
+                  {t_item.avatar}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{t.name}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.role}</p>
+                  <p style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{t_item.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t_item.role}</p>
                 </div>
-                <Stars count={t.stars} />
+                <Stars count={t_item.stars} />
               </div>
             </div>
           ))}
@@ -515,11 +456,11 @@ export default function HomePage() {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🍽️</div>
             <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '12px', letterSpacing: '-0.02em' }}>
-              Ready to cook something{' '}
-              <span className="gradient-text">amazing</span>?
+              {t('home.cta_title_1')}{' '}
+              <span className="gradient-text">{t('home.cta_title_2')}</span>?
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: '32px', maxWidth: '480px', margin: '0 auto 32px' }}>
-              Start for free — no account needed. Just type your ingredients and discover hundreds of delicious recipes instantly.
+              {t('home.cta_subtitle')}
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
@@ -527,14 +468,14 @@ export default function HomePage() {
                 className="btn-primary"
                 style={{ padding: '0.85rem 2rem', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
-                🔍 Start Searching
+                {t('home.cta_search')}
               </button>
               <Link
                 href="/register"
                 className="btn-outline"
                 style={{ padding: '0.85rem 2rem', fontSize: '1rem' }}
               >
-                Create Free Account
+                {t('home.cta_register')}
               </Link>
             </div>
           </div>

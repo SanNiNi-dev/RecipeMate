@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ToastContainer, useToast } from '@/components/Toast'
+import { useLanguage } from '@/components/LanguageProvider'
 
 /* Google "G" logo SVG */
 const GoogleIcon = () => (
@@ -18,6 +19,7 @@ const GoogleIcon = () => (
 export default function RegisterPage() {
   const router = useRouter()
   const { toasts, addToast, removeToast } = useToast()
+  const { t } = useLanguage()
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -25,11 +27,11 @@ export default function RegisterPage() {
 
   const validate = () => {
     const e = {}
-    if (!form.name.trim()) e.name = 'Name is required.'
-    if (!form.email.trim()) e.email = 'Email is required.'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email.'
-    if (!form.password) e.password = 'Password is required.'
-    else if (form.password.length < 6) e.password = 'Password must be at least 6 characters.'
+    if (!form.name.trim()) e.name = t('register.name_required')
+    if (!form.email.trim()) e.email = t('register.email_required')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t('register.email_invalid')
+    if (!form.password) e.password = t('register.password_required')
+    else if (form.password.length < 6) e.password = t('register.password_min')
     return e
   }
 
@@ -47,13 +49,13 @@ export default function RegisterPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        addToast('Account created! Redirecting to login…', 'success')
+        addToast(t('register.success'), 'success')
         setTimeout(() => router.push('/login'), 1800)
       } else {
-        addToast(data.error || 'Registration failed.', 'error')
+        addToast(data.error || t('register.failed'), 'error')
       }
     } catch {
-      addToast('Network error. Please try again.', 'error')
+      addToast(t('common.network_error'), 'error')
     } finally {
       setLoading(false)
     }
@@ -85,117 +87,68 @@ export default function RegisterPage() {
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/20">
               <span className="text-3xl">👨‍🍳</span>
             </div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">Create Account</h1>
-            <p style={{ color: 'var(--text-secondary)' }} className="text-sm">Start discovering recipes tailored to your kitchen</p>
+            <h1 className="text-3xl font-bold gradient-text mb-2">{t('register.title')}</h1>
+            <p style={{ color: 'var(--text-secondary)' }} className="text-sm">{t('register.subtitle')}</p>
           </div>
 
           {/* Card */}
           <div className="glass-card p-8">
-
-            {/* ── Email / Password form (top) ── */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
-              {/* Name */}
               <div>
                 <label htmlFor="reg-name" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  Full Name
+                  {t('register.name_label')}
                 </label>
-                <input
-                  id="reg-name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  placeholder="Gordon Ramsay"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="input-field"
-                />
+                <input id="reg-name" name="name" type="text" autoComplete="name" placeholder={t('register.name_placeholder')} value={form.name} onChange={handleChange} className="input-field" />
                 {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
               </div>
 
-              {/* Email */}
               <div>
                 <label htmlFor="reg-email" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  Email Address
+                  {t('register.email_label')}
                 </label>
-                <input
-                  id="reg-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="gordon@example.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  className="input-field"
-                />
+                <input id="reg-email" name="email" type="email" autoComplete="email" placeholder={t('register.email_placeholder')} value={form.email} onChange={handleChange} className="input-field" />
                 {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
               </div>
 
-              {/* Password */}
               <div>
                 <label htmlFor="reg-password" className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-                  Password
+                  {t('register.password_label')}
                 </label>
-                <input
-                  id="reg-password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Min. 6 characters"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="input-field"
-                />
+                <input id="reg-password" name="password" type="password" autoComplete="new-password" placeholder={t('register.password_placeholder')} value={form.password} onChange={handleChange} className="input-field" />
                 {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full py-3 mt-1 text-base"
-              >
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3 mt-1 text-base">
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Creating Account…
+                    {t('register.creating')}
                   </span>
-                ) : 'Create Account'}
+                ) : t('register.create_btn')}
               </button>
             </form>
 
-            {/* ── Divider ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '1.5rem 0' }}>
               <div style={{ flex: 1, height: '1px', background: 'rgba(52,211,153,0.15)' }} />
               <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
-                or continue with
+                {t('register.or_continue')}
               </span>
               <div style={{ flex: 1, height: '1px', background: 'rgba(52,211,153,0.15)' }} />
             </div>
 
-            {/* ── Google Sign-Up (bottom) ── */}
             <button
               id="google-register-btn"
               onClick={handleGoogleSignIn}
               disabled={googleLoading}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.75rem',
-                border: '1px solid rgba(52,211,153,0.25)',
-                background: 'var(--glass-card)',
-                color: 'var(--text-primary)',
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                cursor: googleLoading ? 'not-allowed' : 'pointer',
-                opacity: googleLoading ? 0.7 : 1,
-                transition: 'all 0.22s ease',
-                marginBottom: '1.5rem',
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                padding: '0.75rem 1.5rem', borderRadius: '0.75rem', border: '1px solid rgba(52,211,153,0.25)',
+                background: 'var(--glass-card)', color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 600,
+                cursor: googleLoading ? 'not-allowed' : 'pointer', opacity: googleLoading ? 0.7 : 1,
+                transition: 'all 0.22s ease', marginBottom: '1.5rem',
               }}
               onMouseEnter={e => { if (!googleLoading) { e.currentTarget.style.borderColor = 'rgba(66,133,244,0.5)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(66,133,244,0.15)'; e.currentTarget.style.transform = 'translateY(-1px)' }}}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(52,211,153,0.25)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)' }}
@@ -208,13 +161,13 @@ export default function RegisterPage() {
               ) : (
                 <GoogleIcon />
               )}
-              {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+              {googleLoading ? t('register.redirecting') : t('register.google_continue')}
             </button>
 
             <p className="text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-              Already have an account?{' '}
+              {t('register.has_account')}{' '}
               <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">
-                Sign in
+                {t('register.sign_in_link')}
               </Link>
             </p>
           </div>

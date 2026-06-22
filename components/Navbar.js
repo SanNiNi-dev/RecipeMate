@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from '@/components/ThemeProvider'
+import { useLanguage } from '@/components/LanguageProvider'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 /* ── SVG Icons ──────────────────────────────────────────────── */
 const SunIcon = () => (
@@ -21,13 +23,14 @@ const MoonIcon = () => (
 
 
 const MODES = [
-  { id: 'light',  label: 'Light',  Icon: SunIcon },
-  { id: 'dark',   label: 'Dark',   Icon: MoonIcon },
+  { id: 'light',  labelKey: 'common.light',  Icon: SunIcon },
+  { id: 'dark',   labelKey: 'common.dark',   Icon: MoonIcon },
 ]
 
 /* ── Theme Toggle Pill (shared between desktop + mobile) ──── */
 function ThemePill({ compact = false }) {
   const { mode, setMode } = useTheme()
+  const { t } = useLanguage()
 
   return (
     <div
@@ -43,8 +46,9 @@ function ThemePill({ compact = false }) {
         border: '1px solid rgba(16,185,129,0.18)',
       }}
     >
-      {MODES.map(({ id, label, Icon }) => {
+      {MODES.map(({ id, labelKey, Icon }) => {
         const active = mode === id
+        const label = t(labelKey)
         return (
           <button
             key={id}
@@ -97,6 +101,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   const fetchUser = useCallback(async () => {
     try {
@@ -150,15 +155,15 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
-            <Link href="/" className={linkClass('/')}>Home</Link>
+            <Link href="/" className={linkClass('/')}>{t('common.home')}</Link>
             <Link href="/videos" className={linkClass('/videos')}>
-              🎬 Videos
+              🎬 {t('common.videos')}
             </Link>
             {!loading && user && (
               <>
-                <Link href="/history" className={linkClass('/history')}>History</Link>
+                <Link href="/history" className={linkClass('/history')}>{t('common.history')}</Link>
                 <Link href="/watch-later" className={linkClass('/watch-later')}>
-                  ⭐ Watch Later
+                  ⭐ {t('common.watch_later')}
                 </Link>
                 {user.isAdmin && (
                   <Link
@@ -169,19 +174,19 @@ export default function Navbar() {
                         : 'text-rose-400/80 hover:text-rose-400 hover:bg-rose-400/8'
                     }`}
                   >
-                    ⚙️ Admin
+                    ⚙️ {t('common.admin')}
                   </Link>
                 )}
               </>
             )}
             {!loading && !user && (
               <>
-                <Link href="/login" className={linkClass('/login')}>Login</Link>
+                <Link href="/login" className={linkClass('/login')}>{t('common.login')}</Link>
                 <Link
                   href="/register"
                   className="ml-2 px-4 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200"
                 >
-                  Register
+                  {t('common.register')}
                 </Link>
               </>
             )}
@@ -189,6 +194,9 @@ export default function Navbar() {
 
           {/* Right Section (Desktop) */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Language switcher */}
+            <LanguageSwitcher />
+
             {/* 3-way theme pill */}
             <ThemePill />
 
@@ -201,7 +209,7 @@ export default function Navbar() {
                       ? 'bg-emerald-400/15 border border-emerald-400/30'
                       : 'bg-emerald-400/8 border border-emerald-400/20 hover:bg-emerald-400/15'
                   }`}
-                  title="View your profile"
+                  title={t('common.my_profile')}
                 >
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-xs font-bold text-white">
                     {user.name.charAt(0).toUpperCase()}
@@ -212,7 +220,7 @@ export default function Navbar() {
                   onClick={handleLogout}
                   className="btn-danger text-xs px-3 py-1.5"
                 >
-                  Logout
+                  {t('common.logout')}
                 </button>
               </>
             )}
@@ -240,38 +248,46 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-emerald-900/30 px-4 py-4 flex flex-col gap-2">
-          <Link href="/" className={linkClass('/')} onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link href="/videos" className={linkClass('/videos')} onClick={() => setMenuOpen(false)}>🎬 Cooking Videos</Link>
+          <Link href="/" className={linkClass('/')} onClick={() => setMenuOpen(false)}>{t('common.home')}</Link>
+          <Link href="/videos" className={linkClass('/videos')} onClick={() => setMenuOpen(false)}>🎬 {t('common.cooking_videos')}</Link>
           {!loading && user && (
             <>
-              <Link href="/history" className={linkClass('/history')} onClick={() => setMenuOpen(false)}>Search History</Link>
-              <Link href="/watch-later" className={linkClass('/watch-later')} onClick={() => setMenuOpen(false)}>⭐ Watch Later</Link>
-              <Link href="/profile" className={linkClass('/profile')} onClick={() => setMenuOpen(false)}>👤 My Profile</Link>
+              <Link href="/history" className={linkClass('/history')} onClick={() => setMenuOpen(false)}>{t('common.search_history')}</Link>
+              <Link href="/watch-later" className={linkClass('/watch-later')} onClick={() => setMenuOpen(false)}>⭐ {t('common.watch_later')}</Link>
+              <Link href="/profile" className={linkClass('/profile')} onClick={() => setMenuOpen(false)}>👤 {t('common.my_profile')}</Link>
               {user.isAdmin && (
                 <Link href="/admin" onClick={() => setMenuOpen(false)} className={`relative px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive('/admin') ? 'text-rose-400 bg-rose-400/10' : 'text-rose-400/80 hover:text-rose-400 hover:bg-rose-400/8'
-                }`}>⚙️ Admin Panel</Link>
+                }`}>⚙️ {t('common.admin_panel')}</Link>
               )}
               <div className="flex items-center gap-3 pt-2 border-t border-emerald-900/30">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-sm font-bold text-white">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-sm text-emerald-300 font-medium">{user.name}</span>
-                <button onClick={handleLogout} className="ml-auto btn-danger text-xs px-3 py-1.5">Logout</button>
+                <button onClick={handleLogout} className="ml-auto btn-danger text-xs px-3 py-1.5">{t('common.logout')}</button>
               </div>
             </>
           )}
           {!loading && !user && (
             <div className="flex gap-2 pt-2">
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center btn-outline py-2">Login</Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center btn-primary py-2 rounded-xl">Register</Link>
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center btn-outline py-2">{t('common.login')}</Link>
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center btn-primary py-2 rounded-xl">{t('common.register')}</Link>
             </div>
           )}
+
+          {/* Language switcher in mobile */}
+          <div className="pt-3 border-t border-emerald-900/30">
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {t('common.language')}
+            </p>
+            <LanguageSwitcher />
+          </div>
 
           {/* Theme pill in mobile — full labels */}
           <div className="pt-3 border-t border-emerald-900/30">
             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Appearance
+              {t('common.appearance')}
             </p>
             <ThemePill />
           </div>
