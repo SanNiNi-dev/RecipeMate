@@ -9,9 +9,10 @@ import prisma from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
 export async function GET(request) {
+  // Prefer explicit env var; fall back to the incoming request origin
+  // so the callback works on any deployment domain (not just localhost)
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   const error = searchParams.get('error')

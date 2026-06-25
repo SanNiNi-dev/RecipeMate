@@ -4,11 +4,14 @@
 import { NextResponse } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
 
-export async function GET() {
+export async function GET(request) {
+  // Derive origin from the live request so this works on any deployment domain
+  const origin = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+
   const client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`
+    `${origin}/api/auth/google/callback`
   )
 
   const url = client.generateAuthUrl({

@@ -214,7 +214,7 @@ export default function RecipeDetailPage({ params }) {
                 { icon: '⏱️', label: 'Cook Time', value: recipe.readyInMinutes ? `${recipe.readyInMinutes} min` : 'N/A' },
                 { icon: '👥', label: 'Servings', value: recipe.servings || 'N/A' },
                 { icon: '❤️', label: 'Health Score', value: recipe.healthScore ? `${recipe.healthScore}/100` : 'N/A' },
-                { icon: '⭐', label: 'Spoonacular', value: recipe.spoonacularScore ? `${Math.round(recipe.spoonacularScore)}%` : 'N/A' },
+                { icon: '⭐', label: 'Recipe Score', value: recipe.spoonacularScore ? `${Math.round(recipe.spoonacularScore)}%` : 'N/A' },
               ].map((stat) => (
                 <div key={stat.label} className="glass-card p-3 text-center">
                   <div className="text-xl mb-1">{stat.icon}</div>
