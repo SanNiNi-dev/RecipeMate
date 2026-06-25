@@ -18,22 +18,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Prevent flash of wrong theme — runs before React hydrates */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('rm-theme-mode')||'system';var r=m==='system'?(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):m;document.documentElement.setAttribute('data-theme',r);}catch(e){}})();`,
-          }}
-        />
-        {/* Prevent flash of wrong language — set lang attribute before hydrate */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var l=localStorage.getItem('rm-language');if(l&&['en','my','zh','th','ja'].indexOf(l)!==-1){document.documentElement.lang=l;}}catch(e){}})();`,
-          }}
-        />
-      </head>
       <body className="antialiased flex flex-col min-h-screen">
         <ThemeProvider>
           <LanguageProvider>
