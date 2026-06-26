@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useTheme } from './ThemeProvider'
 
 // ── Markdown-lite renderer ────────────────────────────────────────────────────
 function renderMarkdown(text) {
@@ -18,7 +19,7 @@ function renderMarkdown(text) {
 }
 
 // ── Single message bubble ─────────────────────────────────────────────────────
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, isDark }) {
   const isUser = msg.role === 'user'
   return (
     <div className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'} items-end`}>
@@ -34,8 +35,22 @@ function MessageBubble({ msg }) {
         className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
           isUser
             ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-br-sm'
-            : 'bg-slate-800/90 border border-slate-700/50 text-slate-200 rounded-bl-sm'
+            : ''
         }`}
+        style={
+          !isUser
+            ? {
+                background: isDark
+                  ? 'rgba(30, 41, 59, 0.9)'
+                  : 'rgba(240, 253, 244, 0.95)',
+                border: isDark
+                  ? '1px solid rgba(52,211,153,0.15)'
+                  : '1px solid rgba(16,185,129,0.25)',
+                color: isDark ? '#e2e8f0' : '#0f172a',
+                borderRadius: '1rem 1rem 1rem 0.25rem',
+              }
+            : {}
+        }
       >
         {msg.isStreaming ? (
           <span>
@@ -51,13 +66,21 @@ function MessageBubble({ msg }) {
 }
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
-function TypingIndicator() {
+function TypingIndicator({ isDark }) {
   return (
     <div className="flex gap-2.5 items-end">
       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-sm flex-shrink-0 shadow-md">
         🍳
       </div>
-      <div className="bg-slate-800/90 border border-slate-700/50 rounded-2xl rounded-bl-sm px-4 py-3">
+      <div
+        className="rounded-2xl rounded-bl-sm px-4 py-3"
+        style={{
+          background: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(240, 253, 244, 0.95)',
+          border: isDark
+            ? '1px solid rgba(52,211,153,0.15)'
+            : '1px solid rgba(16,185,129,0.25)',
+        }}
+      >
         <div className="flex gap-1 items-center">
           {[0, 1, 2].map((i) => (
             <div
@@ -82,6 +105,9 @@ const SUGGESTIONS = [
 
 // ── Main ChatBot component ────────────────────────────────────────────────────
 export default function ChatBot() {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
@@ -219,6 +245,49 @@ export default function ChatBot() {
     setNoKey(false)
   }
 
+  // ── Theme-aware style tokens ──────────────────────────────────────────────
+  const windowBg = isDark
+    ? 'rgba(10, 17, 35, 0.97)'
+    : 'rgba(255, 255, 255, 0.97)'
+
+  const windowBorder = isDark
+    ? '1px solid rgba(52, 211, 153, 0.2)'
+    : '1px solid rgba(16, 185, 129, 0.3)'
+
+  const windowShadow = isDark
+    ? '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(52,211,153,0.1)'
+    : '0 25px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(16,185,129,0.15)'
+
+  const headerBg = isDark
+    ? 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.08))'
+    : 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.06))'
+
+  const headerBorder = isDark
+    ? '1px solid rgba(52,211,153,0.15)'
+    : '1px solid rgba(16,185,129,0.2)'
+
+  const titleColor = isDark ? '#f1f5f9' : '#0f172a'
+  const iconBtnColor = isDark ? '#64748b' : '#94a3b8'
+  const iconBtnHoverStyle = isDark ? 'rgba(51,65,85,0.5)' : 'rgba(16,185,129,0.1)'
+
+  const inputBg = isDark
+    ? 'rgba(30, 41, 59, 0.6)'
+    : 'rgba(248, 250, 252, 0.95)'
+
+  const inputBorder = isDark
+    ? '1px solid rgba(71,85,105,0.5)'
+    : '1px solid rgba(16,185,129,0.25)'
+
+  const inputColor = isDark ? '#e2e8f0' : '#0f172a'
+  const inputPlaceholder = isDark ? '#64748b' : '#94a3b8'
+
+  const inputBarBorder = isDark
+    ? '1px solid rgba(52,211,153,0.12)'
+    : '1px solid rgba(16,185,129,0.15)'
+
+  const suggestionBorder = isDark ? 'rgba(71,85,105,0.6)' : 'rgba(16,185,129,0.3)'
+  const suggestionColor = isDark ? '#94a3b8' : '#475569'
+
   return (
     <>
       {/* ── Floating toggle button ─────────────────────────────────────────── */}
@@ -260,18 +329,19 @@ export default function ChatBot() {
         <div
           className="flex flex-col h-full rounded-2xl overflow-hidden shadow-2xl"
           style={{
-            background: 'rgba(10, 17, 35, 0.97)',
+            background: windowBg,
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(52, 211, 153, 0.2)',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(52,211,153,0.1)',
+            border: windowBorder,
+            boxShadow: windowShadow,
+            transition: 'background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 flex-shrink-0"
             style={{
-              background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.08))',
-              borderBottom: '1px solid rgba(52,211,153,0.15)',
+              background: headerBg,
+              borderBottom: headerBorder,
             }}
           >
             <div className="flex items-center gap-2.5">
@@ -279,10 +349,10 @@ export default function ChatBot() {
                 🍳
               </div>
               <div>
-                <p className="text-sm font-bold text-slate-100">Chef Mate</p>
+                <p className="text-sm font-bold" style={{ color: titleColor }}>Chef Mate</p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-xs text-emerald-400">AI Cooking Assistant</span>
+                  <span className="text-xs text-emerald-500 font-medium">AI Cooking Assistant</span>
                 </div>
               </div>
             </div>
@@ -290,7 +360,16 @@ export default function ChatBot() {
               <button
                 onClick={clearChat}
                 title="Clear chat"
-                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-700/50 transition-all"
+                className="p-1.5 rounded-lg transition-all"
+                style={{ color: iconBtnColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = iconBtnHoverStyle
+                  e.currentTarget.style.color = isDark ? '#cbd5e1' : '#0f172a'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = iconBtnColor
+                }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -299,7 +378,16 @@ export default function ChatBot() {
               </button>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-700/50 transition-all"
+                className="p-1.5 rounded-lg transition-all"
+                style={{ color: iconBtnColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = iconBtnHoverStyle
+                  e.currentTarget.style.color = isDark ? '#cbd5e1' : '#0f172a'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = iconBtnColor
+                }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -310,14 +398,28 @@ export default function ChatBot() {
 
           {/* No API key banner */}
           {noKey && (
-            <div className="mx-3 mt-3 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-300 flex-shrink-0">
-              ⚠️ Add <code className="bg-slate-800 px-1 rounded">GROQ_API_KEY</code> to your{' '}
-              <code className="bg-slate-800 px-1 rounded">.env</code> file.{' '}
+            <div
+              className="mx-3 mt-3 px-3 py-2 rounded-xl flex-shrink-0 text-xs"
+              style={{
+                background: isDark ? 'rgba(245,158,11,0.1)' : 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.3)',
+                color: isDark ? '#fcd34d' : '#92400e',
+              }}
+            >
+              ⚠️ Add <code
+                className="px-1 rounded"
+                style={{ background: isDark ? 'rgba(30,41,59,0.8)' : 'rgba(226,232,240,0.8)' }}
+              >GROQ_API_KEY</code> to your{' '}
+              <code
+                className="px-1 rounded"
+                style={{ background: isDark ? 'rgba(30,41,59,0.8)' : 'rgba(226,232,240,0.8)' }}
+              >.env</code> file.{' '}
               <a
                 href="https://console.groq.com/keys"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-amber-400 hover:text-amber-300"
+                className="underline hover:opacity-80"
+                style={{ color: isDark ? '#fbbf24' : '#b45309' }}
               >
                 Get free key →
               </a>
@@ -325,14 +427,23 @@ export default function ChatBot() {
           )}
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3 scroll-smooth"
-               style={{ scrollbarWidth: 'thin', scrollbarColor: '#065f46 transparent' }}>
+          <div
+            className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3 scroll-smooth"
+            style={{ scrollbarWidth: 'thin', scrollbarColor: '#065f46 transparent' }}
+          >
             {messages.map((msg) => (
-              <MessageBubble key={msg.id} msg={msg} />
+              <MessageBubble key={msg.id} msg={msg} isDark={isDark} />
             ))}
-            {loading && <TypingIndicator />}
+            {loading && <TypingIndicator isDark={isDark} />}
             {error && (
-              <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2 text-center">
+              <div
+                className="text-xs rounded-xl px-3 py-2 text-center"
+                style={{
+                  color: isDark ? '#f87171' : '#dc2626',
+                  background: isDark ? 'rgba(239,68,68,0.1)' : 'rgba(239,68,68,0.07)',
+                  border: '1px solid rgba(239,68,68,0.25)',
+                }}
+              >
                 ⚠️ {error}
               </div>
             )}
@@ -346,7 +457,22 @@ export default function ChatBot() {
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="text-xs px-2.5 py-1.5 rounded-full border border-slate-600/60 text-slate-400 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all duration-200"
+                  className="text-xs px-2.5 py-1.5 rounded-full transition-all duration-200"
+                  style={{
+                    border: `1px solid ${suggestionBorder}`,
+                    color: suggestionColor,
+                    background: 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'
+                    e.currentTarget.style.color = '#10b981'
+                    e.currentTarget.style.background = 'rgba(16,185,129,0.06)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = suggestionBorder
+                    e.currentTarget.style.color = suggestionColor
+                    e.currentTarget.style.background = 'transparent'
+                  }}
                 >
                   {s}
                 </button>
@@ -357,7 +483,7 @@ export default function ChatBot() {
           {/* Input bar */}
           <div
             className="flex items-end gap-2 px-3 py-3 flex-shrink-0"
-            style={{ borderTop: '1px solid rgba(52,211,153,0.12)' }}
+            style={{ borderTop: inputBarBorder }}
           >
             <textarea
               ref={inputRef}
@@ -373,9 +499,27 @@ export default function ChatBot() {
               placeholder="Ask about recipes, tips, substitutes…"
               rows={1}
               disabled={loading}
-              className="flex-1 bg-slate-800/60 border border-slate-700/50 focus:border-emerald-500/60 focus:ring-0 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder-slate-500 resize-none outline-none transition-all duration-200 disabled:opacity-50"
-              style={{ minHeight: '38px', maxHeight: '100px' }}
+              className="flex-1 rounded-xl px-3 py-2 text-sm resize-none outline-none transition-all duration-200 disabled:opacity-50"
+              style={{
+                background: inputBg,
+                border: inputBorder,
+                color: inputColor,
+                minHeight: '38px',
+                maxHeight: '100px',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'rgba(16,185,129,0.6)'
+                e.target.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.12)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = isDark
+                  ? 'rgba(71,85,105,0.5)'
+                  : 'rgba(16,185,129,0.25)'
+                e.target.style.boxShadow = 'none'
+              }}
             />
+            {/* placeholder color shim */}
+            <style>{`#chatbot-input::placeholder { color: ${inputPlaceholder}; }`}</style>
             <button
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
@@ -383,7 +527,7 @@ export default function ChatBot() {
               className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
                 background: !input.trim() || loading
-                  ? 'rgba(30,41,59,0.8)'
+                  ? isDark ? 'rgba(30,41,59,0.8)' : 'rgba(226,232,240,0.8)'
                   : 'linear-gradient(135deg, #10b981, #059669)',
                 boxShadow: !input.trim() || loading ? 'none' : '0 4px 15px rgba(16,185,129,0.3)',
               }}
