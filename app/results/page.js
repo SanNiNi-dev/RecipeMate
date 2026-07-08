@@ -356,24 +356,98 @@ function ResultsContent() {
         )}
 
         {/* ── No results ──────────────────────────────────────── */}
-        {!loading && !error && recipes.length === 0 && query && (
-          <div className="text-center py-20">
-            <div className="text-7xl mb-5">{activeCount > 0 ? '🔍' : '🤷'}</div>
-            <h2 className="text-2xl font-bold text-slate-300 mb-3">{t('results.no_recipes')}</h2>
-            <p className="text-slate-500 mb-6">
-              {activeCount > 0
-                ? t('results.no_match_filters', { query })
-                : t('results.no_match', { query })
-              }
-            </p>
-            <div className="flex gap-3 justify-center flex-wrap">
-              {activeCount > 0 && (
-                <button onClick={clearAll} className="btn-outline px-6 py-2.5">{t('common.clear_filters')}</button>
-              )}
-              <button onClick={() => router.push('/')} className="btn-primary px-8 py-3">{t('common.try_new_search')}</button>
+        {!loading && !error && recipes.length === 0 && query && (() => {
+          const ingredients = query.split(',').map(s => s.trim()).filter(Boolean)
+          const SUGGESTIONS = ['chicken', 'pasta', 'tomatoes', 'eggs', 'cheese', 'garlic', 'rice', 'potato']
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 16px', gap: '0' }}>
+              <div style={{ fontSize: '5rem', marginBottom: '20px', lineHeight: 1 }}>
+                {activeCount > 0 ? '🔍' : '🍽️'}
+              </div>
+              <div style={{
+                background: 'var(--glass-card)',
+                border: '1px solid rgba(239,68,68,0.18)',
+                borderRadius: '20px',
+                padding: '36px 40px',
+                maxWidth: '560px',
+                width: '100%',
+                textAlign: 'center',
+                backdropFilter: 'blur(16px)',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+              }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#e2e8f0', marginBottom: '10px' }}>
+                  No Recipes Found
+                </h2>
+                {ingredients.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center', marginBottom: '14px' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', alignSelf: 'center', marginRight: '4px' }}>Searched for:</span>
+                    {ingredients.map(ing => (
+                      <span key={ing} style={{
+                        padding: '3px 10px', borderRadius: '9999px', fontSize: '0.78rem', fontWeight: 600,
+                        background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.28)', color: '#fca5a5',
+                      }}>
+                        {ing}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.65, marginBottom: '8px' }}>
+                  {activeCount > 0
+                    ? `We couldn't find recipes matching "${query}" with your active filters. Try removing some filters or using different ingredients.`
+                    : `We couldn't find any recipes using "${query}". The ingredient${ingredients.length > 1 ? 's' : ''} may be too specific, misspelled, or not in our database.`
+                  }
+                </p>
+                <div style={{
+                  background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.14)',
+                  borderRadius: '12px', padding: '14px 18px', marginBottom: '24px', textAlign: 'left',
+                }}>
+                  <p style={{ fontSize: '0.78rem', fontWeight: 700, color: '#34d399', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    💡 Tips to find recipes
+                  </p>
+                  <ul style={{ margin: 0, padding: '0 0 0 16px', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.8 }}>
+                    <li>Check for typos in the ingredient name</li>
+                    <li>Try common names (e.g. &quot;chicken&quot; not &quot;poultry&quot;)</li>
+                    <li>Search with fewer, broader ingredients</li>
+                    {activeCount > 0 && <li>Remove some active filters to widen results</li>}
+                  </ul>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {activeCount > 0 && (
+                    <button onClick={clearAll} className="btn-outline" style={{ padding: '10px 22px', fontSize: '0.9rem' }}>
+                      🗑️ Clear Filters
+                    </button>
+                  )}
+                  <button onClick={() => router.push('/')} className="btn-primary" style={{ padding: '10px 28px', fontSize: '0.9rem' }}>
+                    🔄 Try New Search
+                  </button>
+                </div>
+              </div>
+              <div style={{ marginTop: '36px', textAlign: 'center', maxWidth: '560px', width: '100%' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>
+                  Try searching for popular ingredients
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+                  {SUGGESTIONS.map(s => (
+                    <button
+                      key={s}
+                      onClick={() => router.push(`/results?q=${encodeURIComponent(s)}`)}
+                      style={{
+                        padding: '6px 16px', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 500, cursor: 'pointer',
+                        background: 'var(--bg-elevated)', border: '1px solid var(--border-soft)',
+                        color: 'var(--text-secondary)', transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.color = '#34d399'; e.currentTarget.style.background = 'rgba(16,185,129,0.08)' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-soft)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'var(--bg-elevated)' }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
+
 
         {/* ── Results grid ────────────────────────────────────── */}
         {!loading && !error && recipes.length > 0 && (

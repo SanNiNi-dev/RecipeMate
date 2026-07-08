@@ -71,6 +71,8 @@ function Stars({ count }) {
 export default function HomePage() {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const [validationError, setValidationError] = useState('')
+  const [shake, setShake] = useState(false)
   const { t } = useLanguage()
 
   const typed = useTypewriter([
@@ -132,10 +134,15 @@ export default function HomePage() {
   ]
 
   const handleSearch = async (e) => {
-
     e.preventDefault()
-    if (!query.trim()) return
+    if (!query.trim()) {
+      setValidationError('Please enter at least one ingredient before searching.')
+      setShake(true)
+      setTimeout(() => setShake(false), 600)
+      return
+    }
 
+    setValidationError('')
     await fetch('/api/history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -151,6 +158,7 @@ export default function HomePage() {
       if (existing.map((s) => s.toLowerCase()).includes(ingredient.toLowerCase())) return prev
       return existing.length ? `${prev}, ${ingredient}` : ingredient
     })
+    setValidationError('')
   }
 
   return (
@@ -185,14 +193,15 @@ export default function HomePage() {
                 id="ingredient-search"
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => { setQuery(e.target.value); if (e.target.value.trim()) setValidationError('') }}
                 placeholder={t('home.search_placeholder')}
-                className="input-field"
+                className={`input-field${shake ? ' search-shake' : ''}${validationError ? ' search-error-border' : ''}`}
                 style={{ flex: 1, minWidth: '200px', fontSize: '1rem', padding: '1rem 1.25rem' }}
+                aria-describedby={validationError ? 'search-error-msg' : undefined}
+                aria-invalid={!!validationError}
               />
               <button
                 type="submit"
-                disabled={!query.trim()}
                 className="btn-primary"
                 style={{ padding: '1rem 2rem', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}
               >
@@ -202,6 +211,30 @@ export default function HomePage() {
                 {t('common.find_recipes')}
               </button>
             </div>
+
+            {/* Validation error message */}
+            {validationError && (
+              <div
+                id="search-error-msg"
+                role="alert"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  borderRadius: '10px',
+                  background: 'rgba(239,68,68,0.10)',
+                  border: '1px solid rgba(239,68,68,0.35)',
+                  color: '#fca5a5',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  animation: 'fadeSlideDown 0.25s ease',
+                }}
+              >
+                <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>⚠️</span>
+                {validationError}
+              </div>
+            )}
 
             {/* Quick ingredient chips */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginTop: '4px' }}>

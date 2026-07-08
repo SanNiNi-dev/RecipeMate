@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from '@/components/ThemeProvider'
 import { useLanguage } from '@/components/LanguageProvider'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { ToastContainer, useToast } from '@/components/Toast'
 
 /* ── SVG Icons ──────────────────────────────────────────────── */
 const SunIcon = () => (
@@ -102,6 +103,7 @@ export default function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useLanguage()
+  const { toasts, addToast, removeToast } = useToast()
 
   const fetchUser = useCallback(async () => {
     try {
@@ -126,8 +128,11 @@ export default function Navbar() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     setUser(null)
-    router.push('/login')
-    router.refresh()
+    addToast('Logged out successfully! See you next time 👋', 'success')
+    setTimeout(() => {
+      router.push('/login')
+      router.refresh()
+    }, 1200)
   }
 
   const isActive = (href) => pathname === href
@@ -140,7 +145,9 @@ export default function Navbar() {
     }`
 
   return (
-    <nav className="glass sticky top-0 z-50 border-b border-emerald-900/30">
+    <>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <nav className="glass sticky top-0 z-50 border-b border-emerald-900/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -294,5 +301,6 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    </>
   )
 }
